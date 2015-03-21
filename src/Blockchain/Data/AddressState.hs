@@ -69,7 +69,7 @@ getAddressState address = do
   states <- getKeyVals $ addressAsNibbleString address
   case states of
     [] -> do
-      putAddressState address blankAddressState
+      --putAddressState address blankAddressState
       return blankAddressState
     [state] -> return $ rlpDecode $ rlpDeserialize $ rlpDecode $ snd state
     _ -> error ("getAddressStates found multiple states for: " ++ show (pretty address) ++ "\n" ++ intercalate "\n" (show . pretty <$> states))
