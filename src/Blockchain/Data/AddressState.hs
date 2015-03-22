@@ -11,6 +11,7 @@ module Blockchain.Data.AddressState (
   ) where
 
 import Data.Binary
+import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import Data.Functor
 import Data.List
@@ -74,12 +75,17 @@ getAddressState address = do
     [state] -> return $ rlpDecode $ rlpDeserialize $ rlpDecode $ snd state
     _ -> error ("getAddressStates found multiple states for: " ++ show (pretty address) ++ "\n" ++ intercalate "\n" (show . pretty <$> states))
   
+nibbleString2ByteString::N.NibbleString->B.ByteString
+nibbleString2ByteString (N.EvenNibbleString str) = str
+nibbleString2ByteString (N.OddNibbleString c str) = c `B.cons` str
 
-getAllAddressStates::DBM [(N.NibbleString, AddressState)]
+getAllAddressStates::DBM [(Address, AddressState)]
 getAllAddressStates = do
   states <- getKeyVals ""
-  return $ fmap (rlpDecode . rlpDeserialize . rlpDecode) <$> states
-
+  return $ map convert $ states
+  where
+    convert::(N.NibbleString, RLPObject)->(Address, AddressState)
+    convert (k, v) = (Address $ fromInteger $ byteString2Integer $ nibbleString2ByteString k, rlpDecode . rlpDeserialize . rlpDecode $ v)
   
 
 putAddressState::Address->AddressState->DBM ()

@@ -3,8 +3,6 @@ module Blockchain.DBM (
   DBs(..),
   DBM,
   setStateRoot,
-  setStorageStateRoot,
-  getStorageStateRoot,
   openDBs,
   DetailsDB,
   BlockDB
@@ -16,47 +14,33 @@ import qualified Database.LevelDB as DB
 import Control.Monad.IO.Class
 import Control.Monad.State
 import Control.Monad.Trans.Resource
-import qualified Data.ByteString as B
 import System.Directory
 import System.FilePath
 --import Text.PrettyPrint.ANSI.Leijen hiding ((<$>), (</>))
 
 import Blockchain.Constants
 import Blockchain.Database.MerklePatricia
-import Blockchain.Data.Peer
 
 --import Debug.Trace
 
 type BlockDB = DB.DB
 type CodeDB = DB.DB
 type DetailsDB = DB.DB
-type StorageDB = MPDB
 
 data DBs =
   DBs {
     blockDB::BlockDB,
     detailsDB::DetailsDB,
     stateDB::MPDB,
-    codeDB::CodeDB,
-    storageDB::StorageDB
+    codeDB::CodeDB
     }
 
-type DBM = StateT DBs IO
+type DBM = StateT DBs (ResourceT IO)
 
 setStateRoot::SHAPtr->DBM ()
 setStateRoot stateRoot' = do
   ctx <- get
   put ctx{stateDB=(stateDB ctx){stateRoot=stateRoot'}}
-
-setStorageStateRoot::SHAPtr->DBM ()
-setStorageStateRoot stateRoot' = do
-  ctx <- get
-  put ctx{storageDB=(storageDB ctx){stateRoot=stateRoot'}}
-
-getStorageStateRoot::DBM SHAPtr
-getStorageStateRoot = do
-  ctx <- get
-  return $ stateRoot $ storageDB ctx
 
 options::DB.Options
 options = DB.defaultOptions {
@@ -74,4 +58,3 @@ openDBs theType = do
       ddb
       MPDB{ ldb=sdb, stateRoot=error "no stateRoot defined"}
       sdb
-      MPDB{ ldb=sdb, stateRoot=SHAPtr B.empty} --error "no storage stateRoot defined"}

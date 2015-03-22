@@ -22,7 +22,7 @@ import Blockchain.Data.RLP
 import Blockchain.SHA
 import Blockchain.Util
 
-newtype Address = Address Word160 deriving (Show, Eq)
+newtype Address = Address Word160 deriving (Show, Eq, Ord)
 
 instance Pretty Address where
   pretty (Address x) = yellow $ text $ padZeros 40 $ showHex x ""
