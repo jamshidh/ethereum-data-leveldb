@@ -53,9 +53,10 @@ library
                    Blockchain.Constants
                    Blockchain.DBM
                    Blockchain.Data.Address
-                   Blockchain.Data.AddressState
-                   Blockchain.Data.Block
+                   Blockchain.Data.AddressStateDB
+                   Blockchain.Data.BlockDB
                    Blockchain.Data.Code
+                   Blockchain.Data.DataDefs
                    Blockchain.Data.Log
                    Blockchain.Data.Peer
                    Blockchain.Data.SignedTransaction

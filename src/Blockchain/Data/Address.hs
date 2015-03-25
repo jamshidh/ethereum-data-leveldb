@@ -3,7 +3,7 @@ module Blockchain.Data.Address (
   Address(..),
   prvKey2Address,
   pubKey2Address,
-  getNewAddress
+  getNewAddress_unsafe
   ) where
 
 import Control.Monad
@@ -59,8 +59,8 @@ instance RLPSerializable Address where
   rlpDecode (RLPString s) = Address $ decode $ BLC.pack s
   rlpDecode x = error ("Malformed rlp object sent to rlp2Address: " ++ show x)
 
-getNewAddress::Address->Integer->Address
-getNewAddress a n =
+getNewAddress_unsafe::Address->Integer->Address
+getNewAddress_unsafe a n =
     let theHash = hash $ rlpSerialize $ RLPArray [rlpEncode a, rlpEncode n]
     in decode $ BL.drop 12 $ encode theHash
 

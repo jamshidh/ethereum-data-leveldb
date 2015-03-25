@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Blockchain.Data.AddressState (
+module Blockchain.Data.AddressStateDB (
   AddressState(..),
   blankAddressState,
   getAddressState,
@@ -30,35 +30,35 @@ import Blockchain.Util
 
 --import Debug.Trace
 
-data AddressState = AddressState { addressStateNonce::Integer, balance::Integer, contractRoot::SHAPtr, codeHash::SHA } deriving (Show)
+data AddressState = AddressState { addressStateNonce::Integer, addressStateBalance::Integer, addressStateContractRoot::SHAPtr, addressStateCodeHash::SHA } deriving (Show)
 
 
 blankAddressState::AddressState
-blankAddressState = AddressState { addressStateNonce=0, balance=0, contractRoot=emptyTriePtr, codeHash=hash "" }
+blankAddressState = AddressState { addressStateNonce=0, addressStateBalance=0, addressStateContractRoot=emptyTriePtr, addressStateCodeHash=hash "" }
 
 instance Format AddressState where
   format a = CL.blue "AddressState" ++
              tab("\nnonce: " ++ showHex (addressStateNonce a) "" ++
-                 "\nbalance: " ++ show (toInteger $ balance a) ++
-                 "\ncontractRoot: " ++ show (pretty $ contractRoot a) ++
-                 "\ncodeHash: " ++ show (pretty $ codeHash a))
+                 "\nbalance: " ++ show (toInteger $ addressStateBalance a) ++
+                 "\ncontractRoot: " ++ show (pretty $ addressStateContractRoot a) ++
+                 "\ncodeHash: " ++ show (pretty $ addressStateCodeHash a))
   
 instance RLPSerializable AddressState where
   --rlpEncode a | balance a < 0 = rlpEncode a{balance = - balance a}
-  rlpEncode a | balance a < 0 = error $ "Error in cal to rlpEncode for AddressState: AddressState has negative balance: " ++ format a
+  rlpEncode a | addressStateBalance a < 0 = error $ "Error in cal to rlpEncode for AddressState: AddressState has negative balance: " ++ format a
   rlpEncode a = RLPArray [
     rlpEncode $ toInteger $ addressStateNonce a,
-    rlpEncode $ toInteger $ balance a,
-    rlpEncode $ contractRoot a,
-    rlpEncode $ codeHash a
+    rlpEncode $ toInteger $ addressStateBalance a,
+    rlpEncode $ addressStateContractRoot a,
+    rlpEncode $ addressStateCodeHash a
                 ]
 
   rlpDecode (RLPArray [n, b, cr, ch]) =
     AddressState {
       addressStateNonce=fromInteger $ rlpDecode n,
-      balance=fromInteger $ rlpDecode b,
-      contractRoot=rlpDecode cr,
-      codeHash=rlpDecode ch
+      addressStateBalance=fromInteger $ rlpDecode b,
+      addressStateContractRoot=rlpDecode cr,
+      addressStateCodeHash=rlpDecode ch
       } 
   rlpDecode x = error $ "Missing case in rlpDecode for AddressState: " ++ show (pretty x)
 
