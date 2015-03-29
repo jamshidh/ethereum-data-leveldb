@@ -14,12 +14,12 @@ import qualified Data.ByteString.Base16 as B16
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Lazy.Char8 as BLC
-import Network.Haskoin.Internals
 import Numeric
 import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
 
 import Blockchain.Data.RLP
 import Blockchain.Database.MerklePatricia
+import Blockchain.ExtWord
 import Blockchain.Util
 
 newtype SHA = SHA Word256 deriving (Show, Eq)

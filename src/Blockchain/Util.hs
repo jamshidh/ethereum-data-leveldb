@@ -5,7 +5,6 @@ module Blockchain.Util (
   integer2Bytes,
   integer2Bytes1,
   word160ToBytes,
-  word256ToBytes,
   padZeros,
   tab,
   showMem,
@@ -40,10 +39,6 @@ integer2Bytes x = integer2Bytes (x `shiftR` 8) ++ [fromInteger (x .&. 255)]
 integer2Bytes1::Integer->[Word8]
 integer2Bytes1 0 = [0]
 integer2Bytes1 x = integer2Bytes x
-
-word256ToBytes::Word256->[Word8]
-word256ToBytes x =
-     map (\byte -> fromIntegral $ (x `shiftR` (byte*8)) .&. 0xFF) [31,30..0]
 
 word160ToBytes::Word160->[Word8]
 word160ToBytes x =
