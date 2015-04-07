@@ -36,6 +36,7 @@ import Blockchain.Data.Address
 import qualified Blockchain.Colors as CL
 import Blockchain.Database.MerklePatricia
 import Blockchain.ExtDBs
+import Blockchain.ExtWord
 import Blockchain.Format
 import Blockchain.Data.RLP
 import Blockchain.SHA
@@ -58,7 +59,8 @@ data BlockData = BlockData {
   blockDataGasUsed::Integer,
   blockDataTimestamp::UTCTime,
   blockDataExtraData::Integer,
-  blockDataNonce::SHA
+  blockDataNonce::Word64,
+  blockMixHash::SHA
 } deriving (Show)
 
 data Block = Block {
@@ -89,7 +91,7 @@ instance RLPSerializable Block where
     RLPArray [rlpEncode bd, RLPArray (rlpEncode <$> receipts), RLPArray $ rlpEncode <$> uncles]
 
 instance RLPSerializable BlockData where
-  rlpDecode (RLPArray [v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14]) =
+  rlpDecode (RLPArray [v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15]) =
     BlockData {
       blockDataParentHash = rlpDecode v1,
       blockDataUnclesHash = rlpDecode v2,
@@ -104,7 +106,8 @@ instance RLPSerializable BlockData where
       blockDataGasUsed = rlpDecode v11,
       blockDataTimestamp = posixSecondsToUTCTime $ fromInteger $ rlpDecode v12,
       blockDataExtraData = rlpDecode v13,
-      blockDataNonce = rlpDecode v14
+      blockMixHash = rlpDecode v14,
+      blockDataNonce = bytesToWord64 $ B.unpack $ rlpDecode v15
       }  
   rlpDecode (RLPArray arr) = error ("Error in rlpDecode for Block: wrong number of items, expected 14, got " ++ show (length arr) ++ ", arr = " ++ show (pretty arr))
   rlpDecode x = error ("rlp2BlockData called on non block object: " ++ show x)
@@ -125,7 +128,8 @@ instance RLPSerializable BlockData where
       rlpEncode $ blockDataGasUsed bd,
       rlpEncode (round $ utcTimeToPOSIXSeconds $ blockDataTimestamp bd::Integer),
       rlpEncode $ blockDataExtraData bd,
-      rlpEncode $ blockDataNonce bd
+      rlpEncode $ blockMixHash bd,
+      rlpEncode $ B.pack $ word64ToBytes $ blockDataNonce bd
       ]
 
 blockHash::Block->SHA
@@ -146,7 +150,7 @@ instance Format BlockData where
     "gasUsed: " ++ show (blockDataGasUsed b) ++ "\n" ++
     "timestamp: " ++ show (blockDataTimestamp b) ++ "\n" ++
     "extraData: " ++ show (pretty $ blockDataExtraData b) ++ "\n" ++
-    "nonce: " ++ show (pretty $ blockDataNonce b) ++ "\n"
+    "nonce: " ++ showHex (blockDataNonce b) "" ++ "\n"
 
 getBlock::SHA->DBM (Maybe Block)
 getBlock h = 
@@ -187,8 +191,6 @@ noncelessBlock2RLP Block{blockData=bd, receiptTransactions=receipts, blockUncles
 noncelessBlock2RLP _ = error "noncelessBock2RLP not definted for blockUncles /= []"
 -}
 
-sha2ByteString::SHA->B.ByteString
-sha2ByteString (SHA val) = BL.toStrict $ encode val
 
 headerHashWithoutNonce::Block->ByteString
 headerHashWithoutNonce b = C.hash 256 $ rlpSerialize $ noncelessBlockData2RLP $ blockBlockData b
@@ -197,10 +199,10 @@ powFunc::Block->Integer
 powFunc b =
   --trace (show $ headerHashWithoutNonce b) $
   byteString2Integer $ 
-  C.hash 256 (
+  C.hash 256 $
     headerHashWithoutNonce b
     `B.append`
-    sha2ByteString (blockDataNonce $ blockBlockData b))
+    B.pack (word64ToBytes (blockDataNonce $ blockBlockData b))
 
 nonceIsValid::Block->Bool
 nonceIsValid b = powFunc b * blockDataDifficulty (blockBlockData b) < (2::Integer)^(256::Integer)
@@ -208,7 +210,7 @@ nonceIsValid b = powFunc b * blockDataDifficulty (blockBlockData b) < (2::Intege
 addNonceToBlock::Block->Integer->Block
 addNonceToBlock b n =
   b {
-    blockBlockData=(blockBlockData b) {blockDataNonce=SHA $ fromInteger n}
+    blockBlockData=(blockBlockData b) {blockDataNonce=fromInteger n}
     }
 
 findNonce::Block->Integer
