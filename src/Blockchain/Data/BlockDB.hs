@@ -109,7 +109,7 @@ instance RLPSerializable BlockData where
       blockMixHash = rlpDecode v14,
       blockDataNonce = bytesToWord64 $ B.unpack $ rlpDecode v15
       }  
-  rlpDecode (RLPArray arr) = error ("Error in rlpDecode for Block: wrong number of items, expected 14, got " ++ show (length arr) ++ ", arr = " ++ show (pretty arr))
+  rlpDecode (RLPArray arr) = error ("Error in rlpDecode for Block: wrong number of items, expected 15, got " ++ show (length arr) ++ ", arr = " ++ show (pretty arr))
   rlpDecode x = error ("rlp2BlockData called on non block object: " ++ show x)
 
 
