@@ -29,6 +29,8 @@ _Kwei = 1000
 wei = 1
 
 
+minimumDifficulty=131072
+
 blockDBPath::String
 blockDBPath="/blocks/"
 
