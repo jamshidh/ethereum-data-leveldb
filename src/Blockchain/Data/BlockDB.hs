@@ -60,7 +60,7 @@ data BlockData = BlockData {
   blockDataTimestamp::UTCTime,
   blockDataExtraData::Integer,
   blockDataNonce::Word64,
-  blockMixHash::SHA
+  blockDataMixHash::SHA
 } deriving (Show)
 
 data Block = Block {
@@ -106,7 +106,7 @@ instance RLPSerializable BlockData where
       blockDataGasUsed = rlpDecode v11,
       blockDataTimestamp = posixSecondsToUTCTime $ fromInteger $ rlpDecode v12,
       blockDataExtraData = rlpDecode v13,
-      blockMixHash = rlpDecode v14,
+      blockDataMixHash = rlpDecode v14,
       blockDataNonce = bytesToWord64 $ B.unpack $ rlpDecode v15
       }  
   rlpDecode (RLPArray arr) = error ("Error in rlpDecode for Block: wrong number of items, expected 15, got " ++ show (length arr) ++ ", arr = " ++ show (pretty arr))
@@ -128,7 +128,7 @@ instance RLPSerializable BlockData where
       rlpEncode $ blockDataGasUsed bd,
       rlpEncode (round $ utcTimeToPOSIXSeconds $ blockDataTimestamp bd::Integer),
       rlpEncode $ blockDataExtraData bd,
-      rlpEncode $ blockMixHash bd,
+      rlpEncode $ blockDataMixHash bd,
       rlpEncode $ B.pack $ word64ToBytes $ blockDataNonce bd
       ]
 
