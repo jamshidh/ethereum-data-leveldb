@@ -53,10 +53,11 @@ tab ('\n':rest) = '\n':' ':' ':' ':' ':tab rest
 tab (c:rest) = c:tab rest
 
 showWord8::Word8->Char
-showWord8 c | c >= 32 && c < 128 = w2c c
+showWord8 c | c >= 32 && c < 127 = w2c c
 showWord8 _ = '?'
 
 showMem::Int->[Word8]->String
+showMem _ x | length x > 1000 = " mem size greater than 1000 bytes"
 showMem _ [] = "" 
 showMem p (v1:v2:v3:v4:v5:v6:v7:v8:rest) = 
     padZeros 4 (showHex p "") ++ " " 
