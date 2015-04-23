@@ -34,8 +34,10 @@ library
                  , directory
                  , either
                  , entropy
+                 , ethereum-encryption
                  , ethereum-merkle-patricia-db
                  , ethereum-rlp
+                 , ethereum-util
                  , filepath
                  , haskoin
                  , leveldb-haskell
@@ -59,15 +61,10 @@ library
                    Blockchain.Data.DataDefs
                    Blockchain.Data.Log
                    Blockchain.Data.Peer
-                   Blockchain.Data.SignedTransaction
                    Blockchain.Data.Transaction
                    Blockchain.Data.TransactionReceipt
-                   Blockchain.DB.CodeDB
                    Blockchain.ExtDBs
-                   Blockchain.Format
-                   Blockchain.ExtWord
-                   Blockchain.SHA
-                   Blockchain.Util
+                   Blockchain.DB.CodeDB
     C-sources: fastNonceFinder/nonceFinder.c
     ghc-options: -Wall
     buildable: True

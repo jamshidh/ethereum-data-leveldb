@@ -9,8 +9,10 @@ import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
 import qualified Blockchain.Colors as CL
 import Blockchain.Format
 import Blockchain.SHA
-import Blockchain.Data.SignedTransaction
 import Blockchain.Data.RLP
+import Blockchain.Data.Transaction
+
+import Debug.Trace
 
 data PostTransactionState = PostTransactionState SHA deriving (Show)
 
@@ -20,7 +22,7 @@ instance RLPSerializable PostTransactionState where
 
 data TransactionReceipt =
   TransactionReceipt {
-    theTransaction::SignedTransaction,
+    theTransaction::Transaction,
     postTransactionState::PostTransactionState,
     cumulativeGasUsed::Integer
     } deriving (Show)
@@ -54,7 +56,7 @@ instance Format TransactionReceipt where
 instance RLPSerializable TransactionReceipt where
   rlpDecode (RLPArray [t, pts, gasUsed]) =
     TransactionReceipt {
-      theTransaction = rlpDecode t,
+      theTransaction = trace ("the val: " ++ show t) $ rlpDecode t,
       postTransactionState = rlpDecode pts,
       cumulativeGasUsed = rlpDecode gasUsed
       }

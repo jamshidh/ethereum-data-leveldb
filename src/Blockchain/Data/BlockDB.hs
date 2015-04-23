@@ -31,19 +31,19 @@ import Foreign.ForeignPtr.Unsafe
 import Numeric
 import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
 
-import Blockchain.DBM
-import Blockchain.Data.Address
 import qualified Blockchain.Colors as CL
+import Blockchain.Data.Address
+import Blockchain.Data.Transaction
 import Blockchain.Database.MerklePatricia
+import Blockchain.Data.RLP
+import Blockchain.DBM
 import Blockchain.ExtDBs
 import Blockchain.ExtWord
 import Blockchain.Format
-import Blockchain.Data.RLP
 import Blockchain.SHA
-import Blockchain.Data.SignedTransaction
 import Blockchain.Util
 
---import Debug.Trace
+import Debug.Trace
 
 data BlockData = BlockData {
   blockDataParentHash::SHA,
@@ -65,7 +65,7 @@ data BlockData = BlockData {
 
 data Block = Block {
   blockBlockData::BlockData,
-  blockReceiptTransactions::[SignedTransaction],
+  blockReceiptTransactions::[Transaction],
   blockBlockUncles::[BlockData]
   } deriving (Show)
 

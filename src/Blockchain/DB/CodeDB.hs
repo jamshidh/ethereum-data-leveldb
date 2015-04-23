@@ -10,6 +10,7 @@ import qualified Data.ByteString.Lazy as BL
 
 import Blockchain.DBM
 import Blockchain.ExtDBs
+import qualified Blockchain.Database.MerklePatricia as MP
 import Blockchain.SHA
 
 addCode::B.ByteString->DBM ()
@@ -17,4 +18,4 @@ addCode = codeDBPut
 
 getCode::SHA->DBM (Maybe B.ByteString)
 getCode theHash = 
-  codeDBGet (BL.toStrict $ encode $ sha2SHAPtr theHash)
+  codeDBGet (BL.toStrict $ encode $ MP.sha2SHAPtr theHash)
