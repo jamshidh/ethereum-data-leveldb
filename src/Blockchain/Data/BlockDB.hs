@@ -43,8 +43,6 @@ import Blockchain.Format
 import Blockchain.SHA
 import Blockchain.Util
 
-import Debug.Trace
-
 data BlockData = BlockData {
   blockDataParentHash::SHA,
   blockDataUnclesHash::SHA,
